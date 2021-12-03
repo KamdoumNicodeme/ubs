@@ -58,13 +58,13 @@ router.delete("/:id",verifyTokenAndAdmin, async (req, res) => {
 //GET PRODUCT
 
 
-router.get("/find/:id",verifyTokenAndAdmin, (req, res)=>{
+router.get("/find/:id",verifyTokenAndAdmin, async (req, res) => {
 
     try {
-        const product = Product.findById(req.params.id);
+        const product = await Product.findById(req.params.id);
 
         res.status(200).json(product);
-    }catch (err){
+    } catch (err) {
         res.status(500).json(err);
     }
 });
@@ -77,8 +77,20 @@ router.get("/find/:id",verifyTokenAndAdmin, (req, res)=>{
 router.get("/",verifyTokenAndAdmin, async (req, res) => {
 
 
+    const pNew = req.query.new;
+    const cNew = req.query.categories;
     try {
-        const products = await Product.find();
+        let products;
+        if (pNew){
+            products = await Product.find().sort({createdAt: -1}).limit(1);
+        }else if (cNew){
+
+            products = await Product.find({categories:{
+                    $in: [cNew],
+                }});
+        }else {
+            products = await Product.find();
+        }
         res.status(200).json(products);
     } catch (err) {
         res.status(500).json(err);
