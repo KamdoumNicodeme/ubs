@@ -1,27 +1,26 @@
 const jwt = require("jsonwebtoken");
 
-const verifyToken = (req,res, next)=>{
+const verifyToken = (req, res, next) => {
     const authHeader = req.headers.token;
-    if (authHeader){
+    if (authHeader) {
         const token = authHeader.split(" ")[1];
-        jwt.verify(token,process.env.JWT_SECRET,(error,user)=>{
+        jwt.verify(token, process.env.JWT_SECRET, (error, user) => {
             if (error) res.status(403).json("Token is not valid");
             req.user = user;
             next();
         });
 
-    }else {
+    } else {
         return res.status(401).json("Your are not authenticate!");
     }
 }
 
-const verifyTokenAndAuthorization = (req, res, next)=>{
-    verifyToken(req, res, ()=>{
+const verifyTokenAndAuthorization = (req, res, next) => {
+    verifyToken(req, res, () => {
         if (req.user.id === req.params.id || req.user.isAdmin) {
 
             next();
-        }
-        else{
+        } else {
             res.status(403).json("Your are not allowed that !");
         }
 
@@ -29,13 +28,15 @@ const verifyTokenAndAuthorization = (req, res, next)=>{
 
 }
 
-const verifyTokenAndAdmin = (req, res, next)=>{
-    verifyToken(req, res, ()=>{
-        if (req.user.id === req.params.id && req.user.isAdmin) {
-
+const verifyTokenAndAdmin = (req, res, next) => {
+    verifyToken(req, res, () => {
+        ///if (req.user.id === req.params.id) {
+        if (req.user.isAdmin){
             next();
         }
-        else{
+
+
+        else {
             res.status(403).json("Your are not allowed that !");
         }
 
@@ -43,4 +44,4 @@ const verifyTokenAndAdmin = (req, res, next)=>{
 
 }
 
-module.exports = {verifyToken,verifyTokenAndAuthorization,verifyTokenAndAdmin}
+module.exports = {verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin}
